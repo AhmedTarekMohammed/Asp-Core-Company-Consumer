@@ -1,0 +1,46 @@
+﻿@model IEnumerable<Employee>
+
+<h2>Employees</h2>
+ 
+<a href="@Url.Action("Create", "Employee")" class="btn btn-primary">Create New</a>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Salary</th>
+            <th>Department</th>
+            <th>Projects</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.id</td>
+                <td>@item.name</td>
+                <td>@item.salary</td>
+                <td>@item.deptName</td>
+                <td>
+                    @if (item.projectsNames != null && item.projectsNames.Any())
+                    {
+                        <ul>
+                            @foreach (var project in item.projectsNames)
+                            {
+                                <li>@project</li>
+                            }
+                        </ul>
+                    }
+                </td>
+                <td>
+                    <a href="@Url.Action("Details", "Employee", new { id = item.id })" class="btn btn-success">Details</a> 
+                    <a href="@Url.Action("Edit", "Employee", new { id = item.id })" class="btn btn-warning">Edit</a> 
+                    <a href="@Url.Action("Delete", "Employee", new { id = item.id })" class="btn btn-outline-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

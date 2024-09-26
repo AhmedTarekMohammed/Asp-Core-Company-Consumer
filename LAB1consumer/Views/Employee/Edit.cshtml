@@ -1,0 +1,91 @@
+﻿@model Employee
+
+<h2>Edit Employee</h2>
+
+<form asp-action="Edit">
+    <input type="hidden" asp-for="id" />
+    
+    <div class="form-group">
+        <label asp-for="name" class="control-label"></label>
+        <input asp-for="name" class="form-control" />
+        <span asp-validation-for="name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="salary" class="control-label"></label>
+        <input asp-for="salary" class="form-control" />
+        <span asp-validation-for="salary" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="deptName" class="control-label">Department</label>
+        <select asp-for="deptName" class="form-control" id="departmentSelect">
+            <option value="">Select Department</option>
+            @foreach (var dept in ViewBag.Departments)
+            {
+                <option value="@dept.name" data-id="@dept.id" selected >@dept.name</option>
+            }
+        </select>
+        <span asp-validation-for="deptName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="projectsNames" class="control-label">Projects</label>
+        <select asp-for="projectsNames" class="form-control" id="projectsSelect" multiple>
+            @if (Model.projectsNames != null && Model.projectsNames.Any())
+            {
+                foreach (var project in Model.projectsNames)
+                {
+                    <option value="@project" selected>@project</option>
+                }
+            }
+        </select>
+        <span asp-validation-for="projectsNames" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <input type="submit" value="Save Changes" class="btn btn-primary" />
+    </div>
+</form>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function() {
+            // Preselect projects based on the current employee's projects
+            var currentProjects = @Html.Raw(Json.Serialize(Model.projectsNames));
+
+            // Load the department change event
+            $('#departmentSelect').change(function() {
+                var selectedDeptId = $(this).find(':selected').data('id');
+                if (selectedDeptId) {
+                    $.ajax({
+                        url: '@Url.Action("GetProjectsByDepartment")',
+                        type: 'GET',
+                        data: { id: selectedDeptId },
+                        success: function(projects) {
+                            var projectsSelect = $('#projectsSelect');
+                            projectsSelect.empty();
+                            $.each(projects, function(index, project) {
+                                var option = $('<option></option>').val(project).text(project);
+                                if (currentProjects.includes(project)) {
+                                    option.attr('selected', 'selected');
+                                }
+                                projectsSelect.append(option);
+                            });
+                        }
+                    });
+                } else {
+                    $('#projectsSelect').empty();
+                }
+            });
+
+            // Trigger department change to load projects if the department is pre-selected
+            $('#departmentSelect').change();
+        });
+    </script>
+}
